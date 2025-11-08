@@ -3,112 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>手机备忘录 - GitHub Pages版</title>
-    
-    <!-- 使用 CDN 加载 Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.0/dist/umd/supabase.min.js"></script>
-    
+    <title>闺蜜备忘录 - 云同步版</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            min-height: 100vh; padding: 20px; 
         }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
+        .container { 
+            max-width: 600px; margin: 0 auto; background: white; 
+            border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); overflow: hidden; 
         }
-
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
+        .header { 
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); 
+            color: white; padding: 30px 20px; text-align: center; position: relative;
         }
-
-        .header {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-            padding: 30px 20px;
-            text-align: center;
-            position: relative;
-        }
-
         .sync-status {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(255,255,255,0.2);
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 12px;
+            position: absolute; top: 10px; right: 10px;
+            background: rgba(255,255,255,0.2); padding: 5px 10px;
+            border-radius: 15px; font-size: 12px;
         }
-
-        .input-section {
-            padding: 20px;
-            background: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
+        .input-section { padding: 20px; background: #f8f9fa; border-bottom: 1px solid #e9ecef; }
+        .input-group { display: flex; gap: 10px; margin-bottom: 15px; }
+        #memoInput { 
+            flex: 1; padding: 15px; border: 2px solid #e9ecef; border-radius: 12px; 
+            font-size: 16px; outline: none; 
         }
-
-        .input-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
+        #addBtn { 
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; 
+            border: none; padding: 15px 25px; border-radius: 12px; font-size: 16px; 
+            cursor: pointer; 
         }
-
-        #memoInput {
-            flex: 1;
-            padding: 15px;
-            border: 2px solid #e9ecef;
-            border-radius: 12px;
-            font-size: 16px;
-            outline: none;
+        .memos-section { padding: 20px; max-height: 500px; overflow-y: auto; }
+        .memo-item { 
+            background: white; border: 1px solid #e9ecef; border-radius: 12px; 
+            padding: 15px; margin-bottom: 15px; 
         }
-
-        #addBtn {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-            border: none;
-            padding: 15px 25px;
-            border-radius: 12px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        .memos-section {
-            padding: 20px;
-            max-height: 500px;
-            overflow-y: auto;
-        }
-
-        .memo-item {
-            background: white;
-            border: 1px solid #e9ecef;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-
-        .sync-info {
-            background: #e7f3ff;
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 10px;
+        .sync-info { 
+            background: #e7f3ff; padding: 15px; margin: 10px 0; border-radius: 10px;
             border-left: 4px solid #4facfe;
-        }
-
-        .debug-info {
-            background: #fff3cd;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            font-size: 12px;
-            display: none;
         }
     </style>
 </head>
@@ -116,167 +51,268 @@
     <div class="container">
         <div class="header">
             <h1>📝 我的备忘录</h1>
-            <p>GitHub Pages 专用版</p>
-            <div class="sync-status" id="syncStatus">本地模式</div>
+            <p>云同步版本</p>
+            <div class="sync-status" id="syncStatus">初始化...</div>
         </div>
         
         <div class="input-section">
+            <div class="sync-info" id="connectionInfo">
+                正在连接云数据库...
+            </div>
+            
             <div class="input-group">
                 <input type="text" id="memoInput" placeholder="输入要记录的事项...">
                 <button id="addBtn">添加</button>
             </div>
             
-            <div class="sync-info">
-                <strong>同步说明：</strong><br>
-                1. 点击"生成同步码"创建分享数据<br>
-                2. 在其他设备点击"从同步码导入"<br>
-                3. 粘贴同步码即可完成数据同步
-            </div>
-
-            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-                <button onclick="generateShareCode()" style="background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer;">生成同步码</button>
-                <button onclick="importFromShareCode()" style="background: #17a2b8; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer;">从同步码导入</button>
-                <button onclick="toggleDebug()" style="background: #6c757d; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer;">调试信息</button>
-            </div>
-
-            <div class="debug-info" id="debugInfo">
-                <!-- 调试信息将显示在这里 -->
+            <div style="text-align: center; margin-top: 15px;">
+                <button onclick="forceSync()" style="background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; margin: 0 5px;">强制同步</button>
+                <button onclick="clearAllData()" style="background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; margin: 0 5px;">清空数据</button>
             </div>
         </div>
 
         <div class="memos-section" id="memosContainer">
             <div class="empty-state">
                 <div style="font-size: 48px; margin-bottom: 15px;">📋</div>
-                <h3>暂无备忘录</h3>
-                <p>添加你的第一条备忘录吧！</p>
+                <h3>加载中...</h3>
+                <p>正在连接云服务</p>
             </div>
         </div>
     </div>
 
     <script>
+        // === 配置区域 ===
+        // 替换为你的 Supabase 配置
+        const SUPABASE_CONFIG = {
+            url: 'https://ilkcstfszbnkabkjepdh.supabase.co', // 你的 Project URL
+            key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlsa2NzdGZzemJua2Fia2plcGRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI2MTY4NDUsImV4cCI6MjA3ODE5Mjg0NX0.QdjhxenYWYZouJ-pnGOfO2-z-NaHp50TwFinjtWuy50' // 你的 anon public key
+        };
+
         // 应用状态
-        let memos = JSON.parse(localStorage.getItem('memos')) || [];
+        let memos = [];
         let supabase = null;
+        let currentUser = null;
         let isOnline = false;
 
-        // 获取DOM元素
-        const memoInput = document.getElementById('memoInput');
-        const addBtn = document.getElementById('addBtn');
-        const memosContainer = document.getElementById('memosContainer');
-        const syncStatus = document.getElementById('syncStatus');
-        const debugInfo = document.getElementById('debugInfo');
-
-        // 初始化 Supabase（可选）
-        async function initSupabase() {
+        // 初始化应用
+        async function initApp() {
             try {
-                // 替换为你的 Supabase 配置
-                const SUPABASE_URL = 'https://ilkcstfszbnkabkjepdh.supabase.co';
-                const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlsa2NzdGZzemJua2Fia2plcGRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI2MTY4NDUsImV4cCI6MjA3ODE5Mjg0NX0.QdjhxenYWYZouJ-pnGOfO2-z-NaHp50TwFinjtWuy50';
+                updateStatus('正在初始化...', 'loading');
                 
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+                // 初始化 Supabase
+                supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.key, {
                     auth: {
-                        autoRefreshToken: true,
                         persistSession: true,
-                        detectSessionInUrl: true
+                        autoRefreshToken: true
                     }
                 });
 
-                // 测试连接
-                const { data, error } = await supabase.from('memos').select('*').limit(1);
+                // 创建匿名用户
+                const { data: authData, error: authError } = await supabase.auth.signInAnonymously();
                 
-                if (error) {
-                    logDebug('Supabase 连接失败: ' + error.message);
-                    return false;
+                if (authError) {
+                    throw new Error('认证失败: ' + authError.message);
                 }
-                
-                logDebug('✅ Supabase 连接成功');
+
+                currentUser = authData.user;
+                updateStatus('云同步已连接', 'success');
                 isOnline = true;
-                syncStatus.textContent = '云同步已连接';
-                return true;
+
+                // 加载数据
+                await loadMemosFromCloud();
                 
+                // 设置实时监听
+                setupRealtimeListener();
+
             } catch (error) {
-                logDebug('Supabase 初始化异常: ' + error.message);
-                return false;
+                console.error('初始化失败:', error);
+                updateStatus('云同步失败，使用本地模式', 'error');
+                loadMemosFromLocal();
             }
         }
 
-        // 生成分享码
-        function generateShareCode() {
-            if (memos.length === 0) {
-                alert('没有数据可以分享！');
+        // 从云端加载备忘录
+        async function loadMemosFromCloud() {
+            try {
+                const { data, error } = await supabase
+                    .from('memos')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                if (data && data.length > 0) {
+                    memos = data.map(item => ({
+                        id: item.id,
+                        text: item.content,
+                        time: new Date(item.created_at).toLocaleString('zh-CN')
+                    }));
+                    updateStatus(`已同步 ${memos.length} 条备忘录`, 'success');
+                } else {
+                    memos = [];
+                    updateStatus('暂无数据', 'info');
+                }
+
+                saveToLocal();
+                renderMemos();
+
+            } catch (error) {
+                console.error('加载数据失败:', error);
+                throw error;
+            }
+        }
+
+        // 设置实时监听
+        function setupRealtimeListener() {
+            if (!supabase || !currentUser) return;
+
+            const subscription = supabase
+                .channel('memos-changes')
+                .on(
+                    'postgres_changes',
+                    {
+                        event: '*',
+                        schema: 'public',
+                        table: 'memos',
+                        filter: `user_id=eq.${currentUser.id}`
+                    },
+                    (payload) => {
+                        console.log('实时更新:', payload);
+                        loadMemosFromCloud(); // 重新加载数据
+                    }
+                )
+                .subscribe();
+
+            return subscription;
+        }
+
+        // 添加备忘录
+        async function addMemo() {
+            const text = document.getElementById('memoInput').value.trim();
+            if (!text) {
+                alert('请输入内容！');
                 return;
             }
 
-            const shareData = {
-                memos: memos,
-                timestamp: new Date().toISOString(),
-                version: '1.0'
+            const newMemo = {
+                text: text,
+                time: new Date().toLocaleString('zh-CN')
             };
 
-            const shareCode = btoa(JSON.stringify(shareData));
-            
-            const fullShareText = `📝备忘录数据同步码📝\n\n${shareCode}\n\n请在目标设备选择"从同步码导入"`;
-            
-            // 复制到剪贴板
-            navigator.clipboard.writeText(shareCode).then(() => {
-                alert(`✅ 同步码已复制到剪贴板！\n\n共 ${memos.length} 条备忘录\n\n请在其他设备粘贴使用`);
-            }).catch(() => {
-                // 如果剪贴板API不可用，显示同步码
-                prompt('请复制以下同步码：', shareCode);
-            });
-        }
+            // 先更新本地
+            memos.unshift(newMemo);
+            document.getElementById('memoInput').value = '';
+            saveToLocal();
+            renderMemos();
 
-        // 从分享码导入
-        function importFromShareCode() {
-            const shareCode = prompt('请输入同步码：');
-            if (!shareCode) return;
-
-            try {
-                const shareData = JSON.parse(atob(shareCode));
-                
-                if (shareData.memos && Array.isArray(shareData.memos)) {
-                    const choice = confirm(`找到 ${shareData.memos.length} 条备忘录\n\n选择"确定"：覆盖当前数据\n选择"取消"：合并数据`);
-                    
-                    if (choice) {
-                        // 覆盖
-                        memos = shareData.memos;
-                    } else {
-                        // 合并（去重）
-                        const existingTexts = new Set(memos.map(m => m.text));
-                        shareData.memos.forEach(memo => {
-                            if (!existingTexts.has(memo.text)) {
-                                memos.push(memo);
+            // 同步到云端
+            if (isOnline) {
+                try {
+                    const { error } = await supabase
+                        .from('memos')
+                        .insert([
+                            {
+                                user_id: currentUser.id,
+                                content: text,
+                                created_at: new Date().toISOString()
                             }
-                        });
-                    }
+                        ]);
+
+                    if (error) throw error;
                     
-                    saveMemos();
-                    renderMemos();
-                    alert(`✅ 同步成功！现在共有 ${memos.length} 条备忘录`);
-                } else {
-                    alert('❌ 同步码格式不正确！');
+                    updateStatus('已同步到云端', 'success');
+                } catch (error) {
+                    console.error('同步失败:', error);
+                    updateStatus('同步失败', 'error');
                 }
-            } catch (error) {
-                alert('❌ 同步码解析失败！请检查代码是否正确。');
             }
         }
 
-        // 记录调试信息
-        function logDebug(message) {
-            const timestamp = new Date().toLocaleTimeString();
-            debugInfo.innerHTML += `[${timestamp}] ${message}<br>`;
-            console.log(message);
+        // 删除备忘录
+        async function deleteMemo(index) {
+            if (!confirm('确定删除？')) return;
+
+            const memo = memos[index];
+            
+            // 先更新本地
+            memos.splice(index, 1);
+            saveToLocal();
+            renderMemos();
+
+            // 同步到云端
+            if (isOnline && memo.id) {
+                try {
+                    const { error } = await supabase
+                        .from('memos')
+                        .delete()
+                        .eq('id', memo.id);
+
+                    if (error) throw error;
+                    
+                    updateStatus('已从云端删除', 'success');
+                } catch (error) {
+                    console.error('删除失败:', error);
+                    updateStatus('删除失败', 'error');
+                }
+            }
         }
 
-        // 显示/隐藏调试信息
-        function toggleDebug() {
-            debugInfo.style.display = debugInfo.style.display === 'none' ? 'block' : 'none';
+        // 强制同步
+        async function forceSync() {
+            if (isOnline) {
+                await loadMemosFromCloud();
+            } else {
+                updateStatus('离线模式，无法同步', 'error');
+            }
         }
 
-        // 渲染备忘录列表
+        // 清空所有数据
+        async function clearAllData() {
+            if (!confirm('确定清空所有数据？此操作不可撤销！')) return;
+
+            if (isOnline) {
+                try {
+                    const { error } = await supabase
+                        .from('memos')
+                        .delete()
+                        .eq('user_id', currentUser.id);
+
+                    if (error) throw error;
+                } catch (error) {
+                    console.error('清空失败:', error);
+                updateStatus('清空失败', 'error');
+                    return;
+                }
+            }
+
+            memos = [];
+            saveToLocal();
+            renderMemos();
+            updateStatus('已清空所有数据', 'success');
+        }
+
+        // 本地存储相关函数
+        function saveToLocal() {
+            localStorage.setItem('memos', JSON.stringify(memos));
+            localStorage.setItem('lastSync', new Date().toISOString());
+        }
+
+        function loadMemosFromLocal() {
+            const localMemos = localStorage.getItem('memos');
+            if (localMemos) {
+                memos = JSON.parse(localMemos);
+                renderMemos();
+                updateStatus(`本地 ${memos.length} 条`, 'info');
+            }
+        }
+
+        // 渲染函数
         function renderMemos() {
+            const container = document.getElementById('memosContainer');
+            
             if (memos.length === 0) {
-                memosContainer.innerHTML = `
+                container.innerHTML = `
                     <div class="empty-state">
                         <div style="font-size: 48px; margin-bottom: 15px;">📋</div>
                         <h3>暂无备忘录</h3>
@@ -286,7 +322,7 @@
                 return;
             }
 
-            memosContainer.innerHTML = memos.map((memo, index) => `
+            container.innerHTML = memos.map((memo, index) => `
                 <div class="memo-item">
                     <div style="display: flex; justify-content: space-between; align-items: start;">
                         <div style="flex: 1;">
@@ -299,53 +335,38 @@
             `).join('');
         }
 
-        function addMemo() {
-            const text = memoInput.value.trim();
-            if (text === '') {
-                alert('请输入备忘录内容！');
-                return;
-            }
-
-            const newMemo = {
-                text: text,
-                time: new Date().toLocaleString('zh-CN')
+        // 状态更新函数
+        function updateStatus(message, type = 'info') {
+            const statusElement = document.getElementById('syncStatus');
+            const infoElement = document.getElementById('connectionInfo');
+            
+            statusElement.textContent = message;
+            infoElement.innerHTML = `<strong>状态:</strong> ${message}`;
+            
+            // 根据类型设置颜色
+            const colors = {
+                success: 'rgba(0,255,0,0.3)',
+                error: 'rgba(255,0,0,0.3)',
+                loading: 'rgba(255,255,0,0.3)',
+                info: 'rgba(255,255,255,0.2)'
             };
-
-            memos.unshift(newMemo);
-            memoInput.value = '';
-            saveMemos();
-            renderMemos();
-            syncStatus.textContent = `已保存 ${memos.length} 条`;
-        }
-
-        function deleteMemo(index) {
-            if (confirm('确定要删除这条备忘录吗？')) {
-                memos.splice(index, 1);
-                saveMemos();
-                renderMemos();
-                syncStatus.textContent = `已保存 ${memos.length} 条`;
-            }
-        }
-
-        function saveMemos() {
-            localStorage.setItem('memos', JSON.stringify(memos));
+            
+            statusElement.style.background = colors[type] || colors.info;
         }
 
         // 事件监听
-        addBtn.addEventListener('click', addMemo);
-        memoInput.addEventListener('keypress', (e) => {
+        document.getElementById('addBtn').addEventListener('click', addMemo);
+        document.getElementById('memoInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') addMemo();
         });
 
-        // 初始化
-        renderMemos();
-        syncStatus.textContent = `本地 ${memos.length} 条`;
-        
-        // 可选：尝试连接 Supabase
-        // initSupabase();
+        // 全局函数
+        window.deleteMemo = deleteMemo;
+        window.forceSync = forceSync;
+        window.clearAllData = clearAllData;
 
-        logDebug('🚀 应用初始化完成');
-        logDebug('📍 部署在: ' + window.location.hostname);
+        // 启动应用
+        initApp();
     </script>
 </body>
 </html>
