@@ -3,436 +3,260 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My notes with Mn</title>
+    <title>作者:Baoger</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: Arial, sans-serif;
         }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            background-color: #f5f5f5;
             padding: 20px;
+            /* 给底部联系方式留空间 */
+            padding-bottom: 80px;
         }
-
         .container {
-            max-width: 600px;
+            max-width: 1200px;
             margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+        #search-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #3498db;
+            border-radius: 6px;
+            font-size: 16px;
+            outline: none;
+        }
+        #search-btn {
+            padding: 12px 30px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        #search-btn:hover {
+            background-color: #2980b9;
+        }
+        .movie-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .movie-card {
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 15px;
+            transition: transform 0.3s;
+        }
+        .movie-card:hover {
+            transform: translateY(-5px);
+        }
+        .movie-title {
+            font-size: 18px;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .movie-link {
+            display: inline-block;
+            padding: 8px 15px;
+            background-color: #2ecc71;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        .movie-link:hover {
+            background-color: #27ae60;
+        }
+        .empty-tip {
+            grid-column: 1 / -1;
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 18px;
+            padding: 50px 0;
         }
 
-        .header {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-            padding: 25px 20px;
+        /* 公告弹窗样式 */
+        .notice-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .notice-content {
+            background-color: white;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 10px;
+            padding: 30px;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .notice-title {
+            font-size: 20px;
+            color: #2c3e50;
+            margin-bottom: 15px;
             text-align: center;
         }
-
-        .input-section {
-            padding: 20px;
-            background: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
+        .notice-text {
+            color: #34495e;
+            line-height: 1.6;
+            margin-bottom: 20px;
         }
-
-        .input-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        #memoInput {
-            flex: 1;
-            padding: 15px;
-            border: 2px solid #e9ecef;
-            border-radius: 12px;
-            font-size: 16px;
-        }
-
-        #addBtn {
-            background: #4facfe;
-            color: white;
-            border: none;
-            padding: 15px 20px;
-            border-radius: 12px;
-            font-size: 16px;
+        .close-notice {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            color: #7f8c8d;
             cursor: pointer;
-        }
-
-        .sync-controls {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 15px;
-        }
-
-        .sync-btn {
-            background: #28a745;
-            color: white;
+            background: none;
             border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .close-notice:hover {
+            color: #e74c3c;
+        }
+
+        /* 底部作者联系方式样式 */
+        .author-contact {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: white;
+            padding: 15px 0;
+            text-align: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 999;
+        }
+        .contact-link {
+            color: #3498db;
+            text-decoration: none;
             font-size: 16px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.3s;
         }
-
-        .memos-section {
-            padding: 20px;
-            max-height: 60vh;
-            overflow-y: auto;
+        .contact-link:hover {
+            color: #2980b9;
         }
-
-        .memo-item {
-            background: white;
-            border: 1px solid #e9ecef;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 12px;
-        }
-
-        .sync-panel {
-            background: #e7f3ff;
-            padding: 20px;
-            margin: 15px;
-            border-radius: 10px;
-            border-left: 4px solid #4facfe;
-        }
-
-        .sync-code {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #b8d4fe;
-            font-family: monospace;
-            word-break: break-all;
-            margin: 10px 0;
-            font-size: 14px;
-            line-height: 1.4;
+        .contact-link i {
+            font-size: 18px;
         }
     </style>
+    <!-- 引入图标库（显示QQ图标） -->
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>📝 闺蜜备忘录</h1>
-            <p>同步码版本</p>
-        </div>
-        
-        <div class="input-section">
-            <div class="input-group">
-                <input type="text" id="memoInput" placeholder="输入要记录的事项...">
-                <button id="addBtn">添加</button>
-            </div>
-            
-            <div class="sync-controls">
-                <button class="sync-btn" onclick="generateSyncCode()">生成同步码</button>
-                <button class="sync-btn" onclick="importSyncCode()" style="background: #17a2b8;">输入同步码</button>
-            </div>
-
-            <!-- 同步码显示区域 -->
-            <div class="sync-panel" id="syncPanel" style="display: none;">
-                <h3>🔗 同步码生成成功！</h3>
-                <div class="sync-code" id="syncCodeDisplay"></div>
-                <div class="sync-controls">
-                    <button class="sync-btn" onclick="copySyncCode()" style="background: #ffc107; color: black;">复制同步码</button>
-                    <button class="sync-btn" onclick="closeSyncPanel()" style="background: #6c757d;">关闭</button>
-                </div>
-                <p style="margin-top: 10px; font-size: 14px; color: #666;">
-                    💡 将此码发送到其他设备，点击"输入同步码"即可同步数据
-                </p>
-            </div>
-        </div>
-
-        <div class="memos-section" id="memosContainer">
-            <div style="text-align: center; padding: 40px; color: #666;">
-                <div style="font-size: 48px; margin-bottom: 15px;">📋</div>
-                <h3>暂无备忘录</h3>
-                <p>添加你的第一条备忘录吧！</p>
+    <!-- 公告弹窗 -->
+    <div class="notice-modal" id="noticeModal">
+        <div class="notice-content">
+            <button class="close-notice" id="closeNotice">&times;</button>
+            <h3 class="notice-title">站点更新公告</h3>
+            <div class="notice-text">
+                1. 添加《疯狂动物城》系列电影<br>
+                2. 修复部分失效链接，优化搜索速度<br>
+                
+                3. 如有链接无法访问，请底部联系作者反馈<br>
+                <br>
+                    由衷感谢大象影院赞助
             </div>
         </div>
     </div>
 
+    <div class="container">
+        <h1>电影搜索库</h1>
+        <div class="search-bar">
+            <input type="text" id="search-input" placeholder="输入电影名称搜索">
+            <button id="search-btn">搜索</button>
+        </div>
+        <div class="movie-container" id="movie-container">
+            <div class="empty-tip">请输入电影名称进行搜索</div>
+        </div>
+    </div>
+
+    <!-- 底部作者QQ联系方式 -->
+    <div class="author-contact">
+        <!-- 🔥 替换这里的QQ号为你的真实QQ，点击直接跳转添加好友 -->
+        <a href="mqqapi://card/show_pslcard?card_type=1&source=external&uin=2164569327&version=1" class="contact-link" target="_blank">
+            <i class="fab fa-qq"></i> 联系作者（QQ：2164569327）
+        </a>
+    </div>
+
     <script>
-        // 修复 btoa 对中文字符的支持
-        function safeBtoa(str) {
-            try {
-                // 方法1: 使用 encodeURIComponent 处理中文字符
-                return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, 
-                    function toSolidBytes(match, p1) {
-                        return String.fromCharCode('0x' + p1);
-                    }));
-            } catch (e) {
-                // 方法2: 如果还失败，使用更安全的方法
-                return btoa(unescape(encodeURIComponent(str)));
+        // 电影数据（可自行添加/删除）
+        let movieData = [
+            {
+                name: "疯狂动物城1",
+                link: "https://www.jizhenqu.com/jzvod-play/245428-1-1.html"
+            },
+            {
+                name: "流浪地球",
+                link: "https://www.ie9e.com/bofang/10017-7-1.html"
+            },
+            {
+                name: "疯狂动物城2",
+                link: "https://www.jizhenqu.com/jzvod-play/315728-1-1.html"
             }
-        }
+        ];
 
-        // 对应的解码函数
-        function safeAtob(str) {
-            try {
-                return decodeURIComponent(atob(str).split('').map(function(c) {
-                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                }).join(''));
-            } catch (e) {
-                return decodeURIComponent(escape(atob(str)));
-            }
-        }
+        // 页面元素
+        const searchInput = document.getElementById("search-input");
+        const searchBtn = document.getElementById("search-btn");
+        const movieContainer = document.getElementById("movie-container");
+        const noticeModal = document.getElementById("noticeModal");
+        const closeNotice = document.getElementById("closeNotice");
 
-        // 从本地存储加载备忘录
-        let memos = JSON.parse(localStorage.getItem('memos')) || [];
-        console.log('初始化完成，备忘录数量:', memos.length);
+        // 关闭公告
+        closeNotice.addEventListener("click", () => noticeModal.style.display = "none");
+        noticeModal.addEventListener("click", (e) => e.target === noticeModal && (noticeModal.style.display = "none"));
 
-        // 获取DOM元素
-        const memoInput = document.getElementById('memoInput');
-        const addBtn = document.getElementById('addBtn');
-        const memosContainer = document.getElementById('memosContainer');
-        const syncPanel = document.getElementById('syncPanel');
-        const syncCodeDisplay = document.getElementById('syncCodeDisplay');
+        // 搜索功能
+        searchBtn.addEventListener("click", searchMovies);
+        searchInput.addEventListener("keypress", (e) => e.key === "Enter" && searchMovies());
 
-        // 生成同步码函数 - 完全修复版
-        function generateSyncCode() {
-            console.log('点击了生成同步码按钮');
-            
-            try {
-                if (memos.length === 0) {
-                    alert('📝 还没有备忘录可以同步呢！');
-                    return;
-                }
-
-                console.log('准备生成同步码，数据量:', memos.length);
-
-                // 创建同步数据 - 确保数据格式正确
-                const syncData = {
-                    memos: memos,
-                    timestamp: new Date().getTime(), // 使用时间戳避免中文字符
-                    count: memos.length,
-                    version: '1.0'
-                };
-
-                console.log('同步数据创建成功:', syncData);
-
-                // 将数据转换为JSON字符串
-                const jsonString = JSON.stringify(syncData);
-                console.log('JSON字符串:', jsonString);
-
-                // 使用安全的base64编码
-                const syncCode = safeBtoa(jsonString);
-                console.log('同步码生成成功，长度:', syncCode.length);
-
-                // 显示同步码
-                syncCodeDisplay.textContent = syncCode;
-                syncPanel.style.display = 'block';
-
-                // 自动复制到剪贴板
-                copyToClipboard(syncCode);
-
-            } catch (error) {
-                console.error('生成同步码时出错:', error);
-                alert('生成同步码时出错: ' + error.message);
-            }
-        }
-
-        // 复制到剪贴板
-        function copyToClipboard(text) {
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(text).then(() => {
-                    alert(`✅ 同步码已复制到剪贴板！\n\n共 ${memos.length} 条备忘录`);
-                }).catch(err => {
-                    fallbackCopy(text);
-                });
-            } else {
-                fallbackCopy(text);
-            }
-        }
-
-        // 传统复制方法
-        function fallbackCopy(text) {
-            try {
-                const textArea = document.createElement('textarea');
-                textArea.value = text;
-                textArea.style.position = 'fixed';
-                textArea.style.left = '-999999px';
-                textArea.style.top = '-999999px';
-                document.body.appendChild(textArea);
-                textArea.focus();
-                textArea.select();
-                
-                const successful = document.execCommand('copy');
-                document.body.removeChild(textArea);
-                
-                if (successful) {
-                    alert(`✅ 同步码已复制！\n\n共 ${memos.length} 条备忘录`);
-                } else {
-                    throw new Error('复制失败');
-                }
-            } catch (err) {
-                alert(`✅ 同步码已生成！\n\n请手动复制：\n${text}\n\n共 ${memos.length} 条备忘录`);
-            }
-        }
-
-        // 复制同步码
-        function copySyncCode() {
-            const syncCode = syncCodeDisplay.textContent;
-            copyToClipboard(syncCode);
-        }
-
-        // 输入同步码
-        function importSyncCode() {
-            const syncCode = prompt('📥 请输入同步码：');
-            
-            if (!syncCode) {
+        function searchMovies() {
+            const keyword = searchInput.value.trim().toLowerCase();
+            if (!keyword) {
+                movieContainer.innerHTML = "<div class='empty-tip'>请输入有效的电影名称</div>";
                 return;
             }
-
-            try {
-                console.log('开始解析同步码:', syncCode);
-                
-                // 使用安全的base64解码
-                const decodedString = safeAtob(syncCode);
-                console.log('解码后的字符串:', decodedString);
-                
-                const decodedData = JSON.parse(decodedString);
-                console.log('解析后的数据:', decodedData);
-                
-                if (!decodedData.memos || !Array.isArray(decodedData.memos)) {
-                    throw new Error('同步码格式不正确');
-                }
-
-                console.log('找到备忘录:', decodedData.memos.length, '条');
-
-                // 询问用户如何处理数据
-                const choice = confirm(
-                    `找到 ${decodedData.memos.length} 条备忘录\n\n` +
-                    `✅ 确定：覆盖当前数据\n` +
-                    `🔄 取消：合并数据（去重）`
-                );
-
-                if (choice) {
-                    // 覆盖模式
-                    memos = decodedData.memos;
-                    console.log('选择覆盖模式');
-                } else {
-                    // 合并模式（去重）
-                    const existingTexts = new Set(memos.map(m => m.text));
-                    decodedData.memos.forEach(memo => {
-                        if (!existingTexts.has(memo.text)) {
-                            memos.push(memo);
-                        }
-                    });
-                    console.log('选择合并模式');
-                }
-
-                // 保存并刷新显示
-                saveMemos();
-                renderMemos();
-                
-                alert(`✅ 同步成功！\n\n现在共有 ${memos.length} 条备忘录`);
-                
-                // 关闭同步面板
-                closeSyncPanel();
-
-            } catch (error) {
-                console.error('同步码解析失败:', error);
-                alert('❌ 同步码无效或已损坏！\n\n请检查同步码是否正确。');
-            }
-        }
-
-        // 关闭同步面板
-        function closeSyncPanel() {
-            syncPanel.style.display = 'none';
-        }
-
-        // 渲染备忘录列表
-        function renderMemos() {
-            if (memos.length === 0) {
-                memosContainer.innerHTML = `
-                    <div style="text-align: center; padding: 40px; color: #666;">
-                        <div style="font-size: 48px; margin-bottom: 15px;">📋</div>
-                        <h3>暂无备忘录</h3>
-                        <p>添加你的第一条备忘录吧！</p>
+            const matchedMovies = movieData.filter(movie => movie.name.toLowerCase().includes(keyword));
+            movieContainer.innerHTML = matchedMovies.length 
+                ? matchedMovies.map(m => `
+                    <div class="movie-card">
+                        <h3 class="movie-title">${m.name}</h3>
+                        <a href="${m.link}" target="_blank" class="movie-link">打开电影链接</a>
                     </div>
-                `;
-                return;
-            }
-
-            memosContainer.innerHTML = memos.map((memo, index) => `
-                <div class="memo-item">
-                    <div style="display: flex; justify-content: space-between; align-items: start;">
-                        <div style="flex: 1;">
-                            <div style="font-size: 16px; margin-bottom: 5px;">${memo.text}</div>
-                            <div style="font-size: 12px; color: #999;">${memo.time}</div>
-                        </div>
-                        <button onclick="deleteMemo(${index})" style="
-                            background: #ff6b6b; color: white; border: none; 
-                            width: 28px; height: 28px; border-radius: 50%; 
-                            cursor: pointer; font-size: 14px;
-                        ">×</button>
-                    </div>
-                </div>
-            `).join('');
+                `).join("")
+                : "<div class='empty-tip'>未找到相关电影</div>";
         }
-
-        // 添加新备忘录
-        function addMemo() {
-            const text = memoInput.value.trim();
-            
-            if (text === '') {
-                alert('📝 请输入备忘录内容！');
-                return;
-            }
-
-            const newMemo = {
-                text: text,
-                time: new Date().toLocaleString('zh-CN')
-            };
-
-            memos.unshift(newMemo);
-            memoInput.value = '';
-            saveMemos();
-            renderMemos();
-        }
-
-        // 删除备忘录
-        function deleteMemo(index) {
-            if (confirm('确定要删除这条备忘录吗？')) {
-                memos.splice(index, 1);
-                saveMemos();
-                renderMemos();
-            }
-        }
-
-        // 保存到本地存储
-        function saveMemos() {
-            localStorage.setItem('memos', JSON.stringify(memos));
-        }
-
-        // 事件监听
-        addBtn.addEventListener('click', addMemo);
-        
-        memoInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                addMemo();
-            }
-        });
-
-        // 初始化
-        renderMemos();
-
-        // 测试函数
-        function testEncoding() {
-            const testData = { memos: [{text: "测试中文", time: "2024-01-01"}] };
-            const encoded = safeBtoa(JSON.stringify(testData));
-            const decoded = JSON.parse(safeAtob(encoded));
-            console.log('编码测试通过:', decoded.memos[0].text === "测试中文");
-        }
-        
-        testEncoding();
-
     </script>
 </body>
 </html>
