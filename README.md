@@ -1,4 +1,9 @@
-# notebook-with-mn
-独属于龟蜜的备忘录
-I am Baoge
-I love my Guimi
+# 多功能脚本更新日志
+26.3.4
+v2.7.3 
+1.添加打开前置摄像头
+
+26.4.24
+v2.7.4
+1.修复120帧功能bug问题
+2.添加 github你喜欢吗
