@@ -3,7 +3,7 @@
 # ===== 配置区 =====
 LOCAL_VERSION="1.0.4"
 REMOTE_VERSION_URL="https://raw.githubusercontent.com/MN0322/notebook-with-mn/main/version.txt"    #验证版本号
-REMOTE_SCRIPT_URL="https://raw.githubusercontent.com/MN0322/notebook-with-mn/main/baoger.sh"  #更新链接
+REMOTE_SCRIPT_URL="https://raw.githubusercontent.com/MN0322/notebook-with-mn/main/baoger_10050650_1.0.4.sh"  #更新链接
 REMOTE_CHANGELOG_URL="https://raw.githubusercontent.com/MN0322/notebook-with-mn/main/log.txt"  #获取更新日志
 FILE_URL="https://raw.githubusercontent.com/MN0322/notebook-with-mn/main/keybox.xml"                 #keybox密钥下载链接
 DOWNLOAD_DIR="/storage/emulated/0/Download" #存放目录
